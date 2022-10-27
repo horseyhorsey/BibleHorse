@@ -23,7 +23,7 @@ namespace BH.Data
         {
             base.OnConfiguring(optionsBuilder);
 
-            optionsBuilder.UseSqlite("Data Source=BH-Data.sqlite"); //UNCOMMENT FOR MIGRATIONS
+            //optionsBuilder.UseSqlite("Data Source=BH-Data.sqlite"); //UNCOMMENT FOR MIGRATIONS
         }
     }
 }

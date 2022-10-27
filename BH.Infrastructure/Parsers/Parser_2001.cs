@@ -10,7 +10,7 @@ namespace BH.Infrastructure.Parsers
     /// https://downloads.2001translation.org/html/2001-text.html <para/>
     /// Class to parse a 2001 html file for books, chapters & verses
     /// </summary>
-    public class Parser_2001 : IBibleParser2011
+    public class Parser_2001 : IBibleParser2001
     {
         public List<Book> Books { get; set; } = new List<Book>();
         public List<Verse> Verses { get; set; } = new List<Verse>();
@@ -91,11 +91,20 @@ namespace BH.Infrastructure.Parsers
                         var nodes = book.ChildNodes.Where(x => x.Name != "#text");
                         var paragraph = nodes.ElementAt(1);
                         var currentVerseText = string.Empty;
-
+                        
                         if (book.Id.Contains("chapter"))
                         {
                             int chapterId = 0;
-                            int.TryParse(book.ChildNodes.Where(x => x.Name == "h2")?.First()?.InnerText?.Replace("Chapter ", ""), out chapterId);
+
+                            //special case for Psalm chapters
+                            if (CurrentBook?.Name.StartsWith("Psa") ?? false)
+                            {
+                                int.TryParse(book.ChildNodes.Where(x => x.Name == "h2")?.First()?.InnerText?.Replace("Psalm ", ""), out chapterId);
+                            }
+                            else
+                            {
+                                int.TryParse(book.ChildNodes.Where(x => x.Name == "h2")?.First()?.InnerText?.Replace("Chapter ", ""), out chapterId);
+                            }                            
                             CurrentChapter = chapterId;
 
                             //if (Parser.CurrentChapter > 1) break; //temp stop loop single chapter

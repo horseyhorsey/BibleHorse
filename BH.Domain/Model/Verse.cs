@@ -2,7 +2,7 @@
 {
     public class Verse : BHEntity
     {
-        public int BookId { get; set; }
+        public long BookId { get; set; }
         public int VerseId { get; set; }
         public int Chapter { get; set; }
         public string Text { get; set; }

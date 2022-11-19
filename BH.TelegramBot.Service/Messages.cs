@@ -6,9 +6,9 @@
 
 Must be in the format of {book},{chapter}:{verseRange}
 
-rev,9:11-13 = Will return Revelation Chapter 9, verses 11-13
-gen,6:2-5 = Will return Genesis Chapter 6, verses 2-5
-gen,1:1 = Will return Genesis Chapter 1 verse 1
+<code>rev,9:11-13</code> = Will return Revelation Chapter 9, verses 11-13
+<code>gen,6:2-5</code> = Will return Genesis Chapter 6, verses 2-5
+<code>gen,1:1</code> = Will return Genesis Chapter 1 verse 1
 
 Use / to show list of other commands";
     }

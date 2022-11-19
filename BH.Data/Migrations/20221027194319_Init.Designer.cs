@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BH.Data.Migrations
 {
     [DbContext(typeof(BhDataContext))]
-    [Migration("20221026212422_Init")]
+    [Migration("20221027194319_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,7 +20,7 @@ namespace BH.Data.Migrations
 
             modelBuilder.Entity("BH.Domain.Model.Book", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -32,7 +32,7 @@ namespace BH.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("TranslationId")
+                    b.Property<long>("TranslationId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -44,7 +44,7 @@ namespace BH.Data.Migrations
 
             modelBuilder.Entity("BH.Domain.Model.Translation", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -54,16 +54,39 @@ namespace BH.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Translation");
+                    b.ToTable("Translations");
+                });
+
+            modelBuilder.Entity("BH.Domain.Model.User", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Anointed")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DevineName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("GodsSon")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("BH.Domain.Model.Verse", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("BookId")
+                    b.Property<long>("BookId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Chapter")

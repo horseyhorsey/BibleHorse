@@ -1,0 +1,6 @@
+﻿start - Displays welcome message
+books - Returns list of available books from this Bible
+info - Send with a short book title name to retrieve information
+set_devine_name - Change from the default Jehovah
+set_gods_son - Change from the default Jesus
+set_anointed_one - Change from the default Anointed One (Christ)

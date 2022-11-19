@@ -4,7 +4,7 @@
     {
         public string Name { get; set; }
         public string Introduction { get; set; }
-        public int TranslationId { get; set; }
+        public long TranslationId { get; set; }
         public Translation Translation { get; set; }
     }
 }

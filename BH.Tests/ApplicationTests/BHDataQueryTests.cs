@@ -58,6 +58,20 @@ namespace BH.Tests.ApplicationTests
             Assert.NotNull(verseResult);
         }
 
+        [Theory]
+        [InlineData("jere,11:9-14")]
+        public async Task GetVersesJeremiahBugged(string query)
+        {
+            var q = new GetVersesQuery(new VersesQueryDto
+            {
+                Query = query
+            });
+
+            var verseResult = await Mediator.Send(q);
+
+            Assert.NotNull(verseResult);
+        }
+
         [Fact]
         public async Task GetSingleVerseTests()
         {

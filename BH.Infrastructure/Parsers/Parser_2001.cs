@@ -26,6 +26,9 @@ namespace BH.Infrastructure.Parsers
 
         public bool AddTabOrSpace(HtmlNode? element)
         {
+            if (string.IsNullOrWhiteSpace(CurrentVerse.Text))
+                return false;
+
             if (CurrentVerse.Text.TrimEnd().EndsWith("<br>"))
                 return false;
 
@@ -77,7 +80,7 @@ namespace BH.Infrastructure.Parsers
                         var newBook = new Book() { Id = bookId, Translation = translation };
                         Books.Add(newBook);
                         CurrentBook = newBook;
-                        CurrentBook.Name = book.InnerText;
+                        CurrentBook.Name = book.InnerText.Contains("Daniel") ? "Daniel" : book.InnerText;
                         bookId++;
                     }
                     else if (book.Id.Contains("introduction")) //Books have introduction texts
@@ -120,103 +123,6 @@ namespace BH.Infrastructure.Parsers
                             {
                                 ParseHtmlElement(item);
                                 continue;
-
-                                if (item.ChildNodes.Count > 0)
-                                {
-                                    AddTabOrSpace(item);
-
-                                    foreach (var spanItem in item.ChildNodes)
-                                    {
-                                        if (spanItem.Name == "span" || spanItem.Name == "b")
-                                        {
-                                            if (spanItem.ChildNodes.Count > 1)
-                                            {
-                                                foreach (var supIItem in spanItem.ChildNodes)
-                                                {
-                                                    if (supIItem.Name == "sup" && supIItem.HasAttributes)
-                                                    {
-                                                        TryAddVerse(CurrentBook, supIItem.InnerText, supIItem.Attributes["id"]?.Value, CurrentChapter);
-                                                    }
-                                                    else if (supIItem.Name == "i")
-                                                    {
-                                                        CurrentVerse.AppendText(supIItem.OuterHtml);
-                                                    }
-                                                    else if (supIItem.Name == "span")
-                                                    {
-                                                        AddTabOrSpace(spanItem);
-                                                    }
-                                                    else if (item.ChildNodes[0].Name == "i")
-                                                    {
-                                                        CurrentVerse.AppendText(item.OuterHtml);
-                                                    }
-                                                    else
-                                                    {
-                                                        if (AddTabOrSpace(spanItem)) { }
-                                                        else { CurrentVerse.AppendText(supIItem.OuterHtml); }
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (AddTabOrSpace(spanItem)) { }
-                                                else
-                                                {
-                                                    CurrentVerse.AppendText(spanItem.InnerHtml);
-                                                }
-
-                                            }
-                                        }
-                                        else if (spanItem.Name == "sup" && spanItem.HasAttributes)
-                                        {
-                                            TryAddVerse(CurrentBook, spanItem.InnerText, spanItem.Attributes["id"]?.Value, CurrentChapter);
-                                        }
-                                        else if (spanItem.Name == "a") { CurrentVerse.AppendText(spanItem.OuterHtml); }
-                                        else
-                                        {
-                                            if (spanItem.ChildNodes.Count > 0)
-                                            {
-                                                foreach (var si in spanItem.ChildNodes)
-                                                {
-                                                    if (si.ChildNodes.Count > 0)
-                                                    {
-                                                        foreach (var ii in si.ChildNodes)
-                                                        {
-                                                            if (ii.Name == "sup" && ii.HasAttributes)
-                                                            {
-                                                                TryAddVerse(CurrentBook, si.InnerText, si.Attributes["id"]?.Value, CurrentChapter);
-                                                            }
-                                                            else
-                                                            {
-                                                                CurrentVerse.AppendText(ii.OuterHtml);
-                                                            }
-                                                        }
-                                                    }
-                                                    else if (si.Name == "sup" && si.HasAttributes)
-                                                    {
-                                                        TryAddVerse(CurrentBook, si.InnerText, si.Attributes["id"]?.Value, CurrentChapter);
-                                                    }
-                                                    else if (si.Name == "i")
-                                                    {
-                                                        CurrentVerse.AppendText(spanItem.OuterHtml);
-                                                    }
-                                                    else
-                                                    {
-                                                        CurrentVerse.AppendText(si.OuterHtml);
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                ParseHtmlElement(item);
-                                            }
-                                        }
-                                    }
-
-                                }
-                                else
-                                {
-                                    AddTabOrSpace(item);
-                                }
                             }
                             else
                             {
@@ -249,7 +155,17 @@ namespace BH.Infrastructure.Parsers
         {
             if (item.Name == "#text")
             {
-                CurrentVerse.AppendText(item.InnerText);
+                if (!string.IsNullOrWhiteSpace(item.InnerText))
+                {
+                    //remove the new lines & tabs here, to many gaps between verses
+                    var txt = item.InnerText.Replace("\r\n", "");
+                    txt = item.InnerText.Replace("\t", "");
+                    CurrentVerse.AppendText(txt);
+                }
+                else
+                {
+                    CurrentVerse.AppendText(item.InnerText);
+                }
             }
             else if (item.Name == "sup" && item.HasAttributes)
             {

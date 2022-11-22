@@ -4,11 +4,8 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;
 using BH.Application.Interface;
 using MediatR;
-using BH.Application.Features.Queries;
 using Update = Telegram.Bot.Types.Update;
-using BH.Domain.Sites;
 using BH.Application.Features.Commands;
-using BH.Domain.Model;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BH.TelegramBot.Service
@@ -106,6 +103,11 @@ namespace BH.TelegramBot.Service
                 return;
             }
 
+            await ProcessTelegramMessage(botClient, message, chatId, userId, cancellationToken);
+        }
+
+        private async Task ProcessTelegramMessage(ITelegramBotClient botClient, Telegram.Bot.Types.Message message, long chatId, long userId, CancellationToken cancellationToken)
+        {
             //process a command message
             if (message.Text.StartsWith("/"))
             {
@@ -139,7 +141,7 @@ namespace BH.TelegramBot.Service
                     disableWebPagePreview: true,
                     cancellationToken: cancellationToken);
                 }
-                else if (message.Text.StartsWith("/Books"))
+                else if (message.Text.StartsWith("/books"))
                 {
                     await botClient.SendTextMessageAsync(
                     chatId: chatId,
@@ -194,105 +196,39 @@ namespace BH.TelegramBot.Service
                         );
                 }
             }
-            //process standard
+            //process standard queries
             else if (message.Text.Length > 5)
             {
-                try
-                {
-                    var result = await GetVerses(userId, message.Text);
-
-                    await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    disableNotification: true,
-                    text: result,
-                    parseMode: ParseMode.Html, disableWebPagePreview: true,
-                    cancellationToken: cancellationToken);
-                }
-                catch
-                {
-                    await botClient.SendTextMessageAsync(
-                    chatId: chatId,
-                    disableNotification: true,
-                    text: $"Couldn't find any verses for query = {message.Text}",
-                    parseMode: ParseMode.Html, disableWebPagePreview: true,
-                    cancellationToken: cancellationToken);
-                }
+                var result = await GetVerses(userId, message.Text);
+                await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                disableNotification: true,
+                text: result,
+                parseMode: ParseMode.Html, disableWebPagePreview: true,
+                cancellationToken: cancellationToken);
             }
         }
 
-        private async Task<string> GetVerses(long? userId, string query)
+        Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            using (var scope = services.CreateScope())
+            var ErrorMessage = exception switch
             {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var repo = scope.ServiceProvider.GetRequiredService<IRepository>();
-                var cmd = new GetVersesQuery(new VersesQueryDto() { Query = query });
-                var verses = await mediator.Send(cmd);
+                ApiRequestException apiRequestException
+                    => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+                _ => exception.ToString()
+            };
 
-                if (verses != null && verses.Count() > 0)
-                {
-                    //get the user to adjust names
-                    var userCmd = new GetOrAddUserCommand(userId.Value);
-                    var user = await mediator.Send(userCmd);
+            _logger.LogError(ErrorMessage);
+            return Task.CompletedTask;
+        }       
 
-                    //get first verse and get the book title
-                    var firstVerse = verses.ElementAt(0);
-                    var title = firstVerse.Book.Name;
-                    //include a link back to 2001 from book name, chapter verse
-                    string link2001 = SiteHelper.GetSiteLink_2001(firstVerse.Book.Name) + $"#_{firstVerse.Chapter}:{firstVerse.VerseId}";
-                    string linkBibleHub = SiteHelper.GetSiteLink_BibleHub(firstVerse.Book.Name) + $"{firstVerse.Chapter}-{firstVerse.VerseId}.htm";
-                    string linkGateway = SiteHelper.GetSiteLink_BibleGateway(firstVerse.Book.Name) + $"{firstVerse.Chapter}:{firstVerse.VerseId}";
-
-                    var messageResult = title + $" <a href='{link2001}'>(2001)</a> <a href='{linkBibleHub}'>(Hub)</a> <a href='{linkGateway}'>(Gate)</a>" + Environment.NewLine;
-
-                    foreach (var verse in verses)
-                    {
-                        messageResult += $"{verse.Chapter}:{verse.VerseId} {ReplaceNamesForUser(user, verse.Text)}{Environment.NewLine}";
-                    }
-
-                    return messageResult;
-                }
-                else
-                {
-                    return $"Couldn't find any verses for query = {query}";
-                }
-            }
-        }
-
-        private string ReplaceNamesForUser(User user, string verseText)
-        {
-            if (user != null)
-            {
-                if (!string.IsNullOrWhiteSpace(user.DevineName))
-                {
-                    verseText = verseText.Replace("Jehovah", user.DevineName);
-                }
-                if (!string.IsNullOrWhiteSpace(user.GodsSon))
-                {
-                    verseText = verseText.Replace("Jesus", user.GodsSon);
-                }
-                if (!string.IsNullOrWhiteSpace(user.Anointed))
-                {
-                    verseText = verseText.Replace("Anointed One", user.Anointed, StringComparison.Ordinal);
-                }
-
-                //TODO: Fix database import, Jeremiah Span tags are included when shouldn't be
-                verseText = verseText.Replace("<span", "<b");
-                verseText = verseText.Replace("/span", "/b");
-            }
-
-            verseText = verseText.Replace("<br>", Environment.NewLine);
-            return verseText;
-        }
-
+        #region Bible Service Methods
         private async Task<string> GetAllBooks()
         {
             using (var scope = services.CreateScope())
             {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var repo = scope.ServiceProvider.GetRequiredService<IRepository>();
-                var cmd = new GetBooksQuery();
-                return await mediator.Send(cmd);
+                var bibleService = scope.ServiceProvider.GetRequiredService<IBibleService>();
+                return await bibleService.GetAllBooks();
             }
         }
 
@@ -300,28 +236,21 @@ namespace BH.TelegramBot.Service
         {
             using (var scope = services.CreateScope())
             {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var repo = scope.ServiceProvider.GetRequiredService<IRepository>();
-                var cmd = new GetBookInfoQuery(bookTitle);
-
-                try
-                {
-                    var bookInfo = await mediator.Send(cmd);
-                    if (bookInfo?.Book != null)
-                    {
-                        string bookSiteLink = SiteHelper.GetSiteLink_2001(bookInfo.Book.Name);
-                        return $@"<b>{bookInfo.Book.Name}</b> (<a href='{bookSiteLink}'>2001</a>){Environment.NewLine}Chapters: {bookInfo.Chapters}{Environment.NewLine}Verses: {bookInfo.Verses}{Environment.NewLine}{bookInfo.Book.Introduction
-                            .Replace("<span", "<code").Replace("</span>", "</code>")
-                            .Replace("<sup", "<code").Replace("</sup>", "</code>")}";
-                    }
-                    else return $"Couldn't find any title information for book {bookTitle}";
-                }
-                catch
-                {
-                    return $"Couldn't find any title information for book \"{bookTitle}\"";
-                }
+                var bibleService = scope.ServiceProvider.GetRequiredService<IBibleService>();
+                return await bibleService.GetBookInformation(bookTitle);
             }
         }
+
+        private async Task<string> GetVerses(long? userId, string query)
+        {
+            using (var scope = services.CreateScope())
+            {
+                var bibleService = scope.ServiceProvider.GetRequiredService<IBibleService>();
+                return await bibleService.GetVerses(userId, query);
+            }
+        }
+
+        #endregion        
 
         private IEnumerable<KeyboardButton> GetSettingsReplyMarkup()
         {
@@ -337,19 +266,6 @@ namespace BH.TelegramBot.Service
             var buttons = new List<KeyboardButton>();
             buttons.Add(new KeyboardButton("/Books"));
             return buttons;
-        }
-
-        Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
-        {
-            var ErrorMessage = exception switch
-            {
-                ApiRequestException apiRequestException
-                    => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
-                _ => exception.ToString()
-            };
-
-            _logger.LogError(ErrorMessage);
-            return Task.CompletedTask;
         }
     }
 }

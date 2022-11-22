@@ -15,6 +15,9 @@ namespace Company.WebApplication1
                     //add mediator
                     services = BH.Application.ServiceInit.AddApplication(services);
 
+                    //add bible service
+                    services = BH.Infrastructure.ServiceInit.AddBibleService(services);
+
                     //add worker / console
                     services.AddHostedService<TelegramBotWorker>();
                 })

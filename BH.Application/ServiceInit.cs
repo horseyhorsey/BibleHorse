@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace BH.Application
 {
@@ -8,8 +7,6 @@ namespace BH.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            //var assemblies = Assembly.GetExecutingAssembly();
-
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
             return services;

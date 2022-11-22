@@ -11,12 +11,14 @@ namespace BH.Application.Features.Queries
     /// </summary>
     public class GetBookInfoQuery : IRequest<BookInfoVm>
     {
-        public GetBookInfoQuery(string bookTitle)
+        public GetBookInfoQuery(string bookTitle, long translationId = 1)
         {
             BookTitle = bookTitle;
+            TranslationId = translationId;
         }
 
         public string BookTitle { get; }
+        public long TranslationId { get; }
     }
 
     public class GetBookInfoQueryHandler : IRequestHandler<GetBookInfoQuery, BookInfoVm>
@@ -41,19 +43,19 @@ namespace BH.Application.Features.Queries
 
     public class BookInfoVm
     {
-        public Book Book { get; set; }
+        public Book? Book { get; set; }
         public int Chapters { get; set; }
         public int Verses { get; set; }        
     }
 
     public class BookInfoSpecification : Specification<Verse>
     {
-        public BookInfoSpecification(string bookTitle)
+        public BookInfoSpecification(string bookTitle, long translationId = 1)
         {
             if (!string.IsNullOrWhiteSpace(bookTitle))
             {
                 Query.Include(x => x.Book);
-                Query.Where(x => x.Book.Name.ToLower().StartsWith(bookTitle.ToLower()));
+                Query.Where(x => x.Book.Name.ToLower().StartsWith(bookTitle.ToLower()) && x.Book.TranslationId == translationId);
             }
         }
     }

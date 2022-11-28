@@ -173,7 +173,17 @@ namespace BH.Infrastructure.Parsers
             }
             else if (item.Name == "i")
             {
-                CurrentVerse.AppendText(item.OuterHtml);
+                if(item.ChildNodes.FirstOrDefault(x => x.Name == "sup") != null)
+                {
+                    foreach (var childItem in item.ChildNodes)
+                    {
+                        ParseHtmlElement(childItem);
+                    }
+                }
+                else
+                {
+                    CurrentVerse.AppendText(item.OuterHtml);
+                }                
             }
             else if (item.Name == "span" || item.Name == "b")
             {

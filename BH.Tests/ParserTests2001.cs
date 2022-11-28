@@ -24,6 +24,10 @@ namespace BH.Tests
             //chapters 1 Peter 1 = 25
             chapters = Parser.Verses.Where(x => x.BookId == 61 && x.Chapter == 1)?.Count();
             Assert.True(chapters == 25);
+
+            //Ezra missing 6:5 to equal 21 verses
+            var verses = Parser.Verses.Where(x => x.BookId == 15 && x.Chapter == 6);
+            Assert.True(verses.Count() == 21);
         }
     }
 }

@@ -86,5 +86,29 @@ namespace BH.Tests.ApplicationTests
 
             Assert.NotNull(verseResult);
         }
+
+        [Theory]
+        [InlineData("gossip")]
+        [InlineData("Jesus")]
+        public async Task SearchVerseQueryTests(string query)
+        {
+            var q = new SearchVerseQuery(query);
+
+            var verseResult = await Mediator.Send(q);
+
+            Assert.NotNull(verseResult);
+        }
+
+        [Theory]
+        //[InlineData("Jesus:123")]
+        [InlineData("nt:Jesus:123")]
+        public async Task SearchVerseQuery_WithPaging_Tests(string query)
+        {
+            var q = new SearchVerseQuery(query);
+
+            var verseResult = await Mediator.Send(q);
+
+            Assert.NotNull(verseResult);
+        }
     }
 }

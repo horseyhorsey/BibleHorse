@@ -25,5 +25,7 @@
         /// <param name="translationId"></param>
         /// <returns></returns>
         Task<string> GetVerses(long? userId, string query, long translationId = 1);
+
+        Task<string> SearchVerses(long? userId, string query, int pageLimit = 10, long translationId = 1);
     }
 }

@@ -83,6 +83,35 @@ namespace BH.Infrastructure.Services
             }
         }
 
+        public async Task<string> SearchVerses(long? userId, string query, int pageLimit = 10, long translationId = 1)
+        {
+            var cmd = new SearchVerseQuery(query, pageLimit, translationId);
+            try
+            {
+                var resultVm = await mediator.Send(cmd);
+                if(resultVm?.ResultTotal <= 0) { return $"No verses found including {resultVm.SearchTerm}"; }
+                else
+                {
+                    //get the user to adjust names
+                    var userCmd = new GetOrAddUserCommand(userId.Value);
+                    var user = await mediator.Send(userCmd);
+
+                    var resultString = @$"Page {resultVm.Page} of {resultVm.Pages} - {resultVm.ResultTotal} results
+<code>/f {resultVm.SearchTerm}</code> (click to copy){Environment.NewLine}{Environment.NewLine}";
+                    foreach (var verse in resultVm.Verses)
+                    {
+                        resultString += $"<code>{verse.Book.Name},{verse.Chapter}:{verse.VerseId}</code> {ReplaceNamesForUser(user, verse.Text)}{Environment.NewLine}";
+                    }
+
+                    return resultString;
+                }                
+            }
+            catch (Exception ex)
+            {
+                return $"Error occured searching {ex.Message}";
+            }
+        }
+
         #region Support Methods
         private string ReplaceNamesForUser(User user, string verseText)
         {

@@ -10,6 +10,18 @@ Must be in the format of {book},{chapter}:{verseRange}
 <code>gen,6:2-5</code> = Will return Genesis Chapter 6, verses 2-5
 <code>gen,1:1</code> = Will return Genesis Chapter 1 verse 1
 
-Use / to show list of other commands";
+Use / to show list of other commands
+";
+
+        public const string MSG_FIND_HELP = @"Add a search term to the command...
+
+You can use shorter find with <code>/f</code> 
+
+<code>/find gossip</code> = Search whole Bible for gossip
+<code>/find luke:jesus</code> = Search Luke for Jesus
+<code>/find ot:anger</code> = Search Old testament for anger
+<code>/find nt:gossip</code> = Search New testament for gossip
+<code>/f nt:drunk:2</code> = Search NT for drunk and set a page number
+";
     }
 }

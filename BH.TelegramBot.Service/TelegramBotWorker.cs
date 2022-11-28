@@ -154,12 +154,46 @@ namespace BH.TelegramBot.Service
                 else if (message.Text.StartsWith("/info"))
                 {
                     var cmd = message.Text.Replace("/info", "").Trim();
-                    var bookInfo = await GetBookInformation(cmd);
+                    var bookInfo = string.IsNullOrWhiteSpace(cmd) ? "Provide a book title or short name for info like /info gen" : await GetBookInformation(cmd);
                     if (bookInfo != null)
                     {
                         await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: bookInfo,
+                        disableNotification: true,
+                        parseMode: ParseMode.Html, disableWebPagePreview: true,
+                        cancellationToken: cancellationToken);
+                    }
+                }
+                else if (message.Text.StartsWith("/find"))
+                {
+                    var searchTerm = message.Text.Replace("/find", "").Trim();                    
+
+                    var searchResults = string.IsNullOrWhiteSpace(searchTerm) ?
+                        Messages.MSG_FIND_HELP :
+                        await SearchVerses(userId, searchTerm.Trim());
+                    if (searchResults != null)
+                    {
+                        await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: searchResults,
+                        disableNotification: true,
+                        parseMode: ParseMode.Html, disableWebPagePreview: true,
+                        cancellationToken: cancellationToken);
+                    }
+                }
+                else if (message.Text.StartsWith("/f"))
+                {
+                    var searchTerm = message.Text.Replace("/f", "").Trim();
+
+                    var searchResults = string.IsNullOrWhiteSpace(searchTerm) ?
+                        Messages.MSG_FIND_HELP :
+                        await SearchVerses(userId, searchTerm.Trim());
+                    if (searchResults != null)
+                    {
+                        await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: searchResults,
                         disableNotification: true,
                         parseMode: ParseMode.Html, disableWebPagePreview: true,
                         cancellationToken: cancellationToken);
@@ -247,6 +281,15 @@ namespace BH.TelegramBot.Service
             {
                 var bibleService = scope.ServiceProvider.GetRequiredService<IBibleService>();
                 return await bibleService.GetVerses(userId, query);
+            }
+        }
+
+        private async Task<string> SearchVerses(long? userId, string query)
+        {
+            using (var scope = services.CreateScope())
+            {
+                var bibleService = scope.ServiceProvider.GetRequiredService<IBibleService>();
+                return await bibleService.SearchVerses(userId, query);
             }
         }
 

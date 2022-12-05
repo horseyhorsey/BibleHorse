@@ -454,3 +454,5 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 /BH.Data/BH-Data.sqlite
 /BH.Importer/BH-Data.sqlite
+/BH.Importer/BH-Data-OnlineBackUp.sqlite
+/BH.Importer/BH-Data-old.sqlite

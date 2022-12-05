@@ -15,19 +15,19 @@ A bot for telegram to return verses via a query over message. Telegram BOT: http
 
 #### Commands
 
-start - Displays welcome message
+`start` - Displays welcome message
 
-books - Returns list of available books from this Bible
+`books` - Returns list of available books from this Bible
 
-info - Send with a short book title name to retrieve information
+`info` - Send with a short book title name to retrieve information
 
-find - Run command on it's own for help on how to use the search
+`find` - Run command on it's own for help on how to use the search
 
-set_devine_name - Change from the default Jehovah
+`set_devine_name` - Change from the default Jehovah
 
-set_gods_son - Change from the default Jesus
+`set_gods_son` - Change from the default Jesus
 
-set_anointed_one - Change from the default Anointed One (Christ)
+`set_anointed_one` - Change from the default Anointed One (Christ)
 
 #### Verses / Books
 ---

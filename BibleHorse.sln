@@ -17,14 +17,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Application
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BH.Importer", "BH.Importer\BH.Importer.csproj", "{4AD44952-5A0A-4407-A52D-D8AD51A2296F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9F596E96-C219-442B-9C04-4D526184AB4C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "!Solution Items", "!Solution Items", "{9F596E96-C219-442B-9C04-4D526184AB4C}"
 	ProjectSection(SolutionItems) = preProject
 		ReadMe.md = ReadMe.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BH.TelegramBot.Service", "BH.TelegramBot.Service\BH.TelegramBot.Service.csproj", "{810D6BA6-6C90-42CB-A560-73F1E94775F3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "!Base", "!Base", "{B2CEAE99-2CB5-4D64-9B62-0DBB83B8F87E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{B2CEAE99-2CB5-4D64-9B62-0DBB83B8F87E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2FC8859E-8680-460C-9088-22E615E88D15}"
 EndProject

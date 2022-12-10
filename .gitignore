@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# 2001 Html file ignore.
+BH.Tests/*.html
+
 # User-specific files
 *.rsuser
 *.suo

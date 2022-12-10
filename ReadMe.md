@@ -5,7 +5,13 @@
 
 ### BH.Importer 
 
-Converts a given 2001 Bible translation from html document into a Sqlite database.
+Converts a given 2001 Bible translation from html document into a Sqlite database. 
+
+[2001 Developer page](https://2001translation.org/developers)
+
+[2001 Html File](https://downloads.2001translation.org/html/2001-text.html)
+
+To run tests update the appSettings:  `"2001HtmlDocument": "../BH.Tests/2001-text.html"`
 
 See `ConnectionStrings` for path and database file.
 
